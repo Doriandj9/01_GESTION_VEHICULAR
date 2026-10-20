@@ -1,0 +1,33 @@
+spring:
+  h2:
+    console:
+      enabled: true
+  application:
+    name: gestionvehicular
+  datasource:
+    url: jdbc:postgresql://127.0.0.1:5432/gestion_vehicular
+    driver-class-name: org.postgresql.Driver
+    username: gestion_admin
+    password: pruebas_internas
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "openapi, swagger-ui, health, info"
+
+application:
+  qr:
+    secret-key: "495570D5364653556763D8792F423F4528482B4D9888544766254F666"
+  security:
+    jwt:
+      secret-key: "495570D5364653556763D8792F423F4528482B4D9888544766254F444"
+      expiration: 86400000 #3600000 1 hora
+      refresh-token:
+        expiration: 604800000
+    default-password: 12345
+  hosts:
+    admit: http://localhost:4200, http://127.0.0.1:4200, http://localhost:56147

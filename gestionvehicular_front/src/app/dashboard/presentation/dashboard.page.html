@@ -1,0 +1,105 @@
+<!-- Dashboard del rol ADMINISTRADOR. Sin módulos todavía. -->
+<div class="min-h-dvh bg-neutral-50">
+
+  <!-- Barra superior -->
+  <header class="sticky top-0 z-10 bg-carbon">
+    <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4">
+
+      <div class="flex items-center gap-3">
+        <span class="h-7 w-1 rounded-full bg-primario"></span>
+        <div>
+          <p class="text-sm font-semibold text-white">Gestión Vehicular</p>
+          <p class="text-xs text-white/50">{{ entidad.alias }}</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="hidden text-right sm:block">
+          <p class="text-sm font-medium text-white">{{ sesion.usuario()?.nombres }}</p>
+          <p class="text-xs text-primario">{{ sesion.rol() }}</p>
+        </div>
+        <button
+          type="button"
+          (click)="cerrarSesion()"
+          class="rounded-lg border border-white/20 px-3 py-1.5 text-sm text-white/80
+                 transition-colors hover:border-white/40 hover:text-white focus:outline-none"
+        >
+          Salir
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Contenido -->
+  <main class="mx-auto max-w-6xl px-6 py-10">
+
+    <h1 class="text-2xl font-semibold tracking-tight text-carbon">Panel de administración</h1>
+    <p class="mt-1 text-sm text-carbon/60">
+      Bienvenido, {{ sesion.usuario()?.nombres }}.
+    </p>
+
+    <!-- Módulos habilitados -->
+    <section class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+      <button
+        type="button"
+        (click)="irAUsuarios()"
+        class="rounded-2xl border border-carbon/10 bg-white p-6 text-left shadow-sm
+               transition-colors hover:border-primario focus:ring-2 focus:ring-primario/25
+               focus:outline-none"
+      >
+        <span class="mb-4 block h-1 w-10 rounded-full bg-primario"></span>
+        <p class="text-sm font-semibold text-carbon">Usuarios</p>
+        <p class="mt-1 text-sm text-carbon/55">
+          Registre usuarios del sistema y asígneles su rol.
+        </p>
+      </button>
+
+      <button
+        type="button"
+        (click)="irAParqueaderos()"
+        class="rounded-2xl border border-carbon/10 bg-white p-6 text-left shadow-sm
+               transition-colors hover:border-primario focus:ring-2 focus:ring-primario/25
+               focus:outline-none"
+      >
+        <span class="mb-4 block h-1 w-10 rounded-full bg-primario"></span>
+        <p class="text-sm font-semibold text-carbon">Parqueaderos</p>
+        <p class="mt-1 text-sm text-carbon/55">
+          Registre los parqueaderos de la entidad y su ubicación.
+        </p>
+      </button>
+
+      <button
+        type="button"
+        (click)="irARegistroVehicular()"
+        class="rounded-2xl border border-carbon/10 bg-white p-6 text-left shadow-sm
+               transition-colors hover:border-primario focus:ring-2 focus:ring-primario/25
+               focus:outline-none"
+      >
+        <span class="mb-4 block h-1 w-10 rounded-full bg-primario"></span>
+        <p class="text-sm font-semibold text-carbon">Registro vehicular</p>
+        <p class="mt-1 text-sm text-carbon/55">
+          Asigne vehículos a un parqueadero y obtenga su código QR.
+        </p>
+      </button>
+
+      <button
+        type="button"
+        (click)="irAReportes()"
+        class="rounded-2xl border border-carbon/10 bg-white p-6 text-left shadow-sm
+               transition-colors hover:border-primario focus:ring-2 focus:ring-primario/25
+               focus:outline-none"
+      >
+        <span class="mb-4 block h-1 w-10 rounded-full bg-primario"></span>
+        <p class="text-sm font-semibold text-carbon">Reportes</p>
+        <p class="mt-1 text-sm text-carbon/55">
+          Consulte las entradas y salidas registradas por los guardias.
+        </p>
+      </button>
+
+    </section>
+
+  </main>
+
+</div>

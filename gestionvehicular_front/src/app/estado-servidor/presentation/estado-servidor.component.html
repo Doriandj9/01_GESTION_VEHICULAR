@@ -1,0 +1,80 @@
+<!-- Aviso global de servidor no disponible. Mismo estilo minimalista del diálogo de resultado. -->
+@if (store.caido()) {
+  <div
+    class="fixed inset-0 z-[60] flex items-center justify-center bg-carbon-oscuro/80 px-4 py-10
+           backdrop-blur-sm servidor-fondo"
+  >
+    <section
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="servidor-titulo"
+      class="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-2xl servidor-panel"
+    >
+
+      <!-- Icono animado de error -->
+      <svg class="icono icono-error" viewBox="0 0 52 52" aria-hidden="true">
+        <circle class="icono-borde" cx="26" cy="26" r="24" />
+        <path class="icono-trazo" d="M19 19 L33 33" />
+        <path class="icono-trazo icono-trazo-retrasado" d="M33 19 L19 33" />
+      </svg>
+
+      <h2 id="servidor-titulo" class="mt-6 text-lg font-semibold tracking-tight text-carbon">
+        {{ titulo }}
+      </h2>
+
+      @if (store.salud(); as salud) {
+        <!-- Motivo: siempre se muestra -->
+        <p [ngClass]="'mt-2 text-sm leading-relaxed text-carbon/65'">{{ salud.detalle }}</p>
+
+        <!-- Detalles del chequeo -->
+        <dl class="mt-5 space-y-2 rounded-lg bg-red-50 px-4 py-3 text-left text-sm text-red-700">
+          <div class="flex items-baseline justify-between gap-3">
+            <dt class="font-medium">Estado</dt>
+            <dd class="font-mono">{{ salud.estado }}</dd>
+          </div>
+          <div class="flex items-baseline justify-between gap-3">
+            <dt class="font-medium">Chequeo</dt>
+            <dd class="truncate font-mono text-xs" [title]="urlSalud">{{ urlSalud }}</dd>
+          </div>
+          @if (salud.grupos.length) {
+            <div class="flex items-baseline justify-between gap-3">
+              <dt class="font-medium">Grupos</dt>
+              <dd class="font-mono text-xs">{{ salud.grupos.join(', ') }}</dd>
+            </div>
+          }
+        </dl>
+
+        <!-- Componentes que el actuator reporta fuera de servicio -->
+        @if (salud.componentesCaidos().length) {
+          <ul class="mt-3 space-y-1.5 rounded-lg bg-red-50 px-4 py-3 text-left text-sm text-red-700">
+            @for (componente of salud.componentesCaidos(); track componente[0]) {
+              <li class="flex gap-2">
+                <span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-red-500"></span>
+                <span>
+                  <span class="font-medium">{{ componente[0] }}:</span> {{ componente[1] }}
+                </span>
+              </li>
+            }
+          </ul>
+        }
+      }
+
+      <button
+        type="button"
+        (click)="reintentar()"
+        [disabled]="reintentando() || store.verificando()"
+        class="mt-7 w-full rounded-lg bg-carbon px-4 py-2.5 font-medium text-white
+               transition-colors hover:bg-carbon-claro focus:ring-2 focus:ring-carbon/30
+               focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed
+               disabled:opacity-50"
+      >
+        {{ reintentando() || store.verificando() ? 'Verificando…' : 'Reintentar' }}
+      </button>
+
+      <p [ngClass]="'mt-4 text-xs leading-relaxed text-carbon/45'">
+        Si el problema persiste, avise al área de sistemas de {{ entidad.alias }}.
+      </p>
+
+    </section>
+  </div>
+}

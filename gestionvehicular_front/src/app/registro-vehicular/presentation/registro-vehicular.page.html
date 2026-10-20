@@ -1,0 +1,308 @@
+<!-- Módulo de registro vehicular. Mismo estilo que usuarios: barra negra y acentos verdes. -->
+<div class="min-h-dvh bg-neutral-50">
+
+  <!-- Barra superior -->
+  <header class="sticky top-0 z-10 bg-carbon">
+    <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4">
+
+      <div class="flex items-center gap-3">
+        <span class="h-7 w-1 rounded-full bg-primario"></span>
+        <div>
+          <p class="text-sm font-semibold text-white">Gestión Vehicular</p>
+          <p class="text-xs text-white/50">{{ entidad.alias }}</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="hidden text-right sm:block">
+          <p class="text-sm font-medium text-white">{{ sesion.usuario()?.nombres }}</p>
+          <p class="text-xs text-primario">{{ sesion.rol() }}</p>
+        </div>
+        <button
+          type="button"
+          (click)="cerrarSesion()"
+          class="rounded-lg border border-white/20 px-3 py-1.5 text-sm text-white/80
+                 transition-colors hover:border-white/40 hover:text-white focus:outline-none"
+        >
+          Salir
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Contenido -->
+  <main class="mx-auto max-w-6xl px-6 py-10">
+
+    <!-- Regreso al panel: acción visible y grande -->
+    <button
+      type="button"
+      (click)="irAlDashboard()"
+      class="mb-8 inline-flex items-center gap-3 rounded-xl border border-carbon/15 bg-white
+             px-5 py-3 text-base font-semibold text-carbon shadow-sm transition-colors
+             hover:border-primario hover:bg-primario hover:text-white focus:ring-2
+             focus:ring-primario/30 focus:ring-offset-2 focus:outline-none"
+    >
+      <svg
+        class="h-5 w-5 shrink-0"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M19 12H5" />
+        <path d="M12 19l-7-7 7-7" />
+      </svg>
+      Volver al panel de administración
+    </button>
+
+    <!-- Encabezado del módulo -->
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-semibold tracking-tight text-carbon">Registro vehicular</h1>
+        <p class="mt-1 text-sm text-carbon/60">
+          Registre los vehículos y asígnelos a un parqueadero. La api genera su código QR.
+        </p>
+      </div>
+      <p class="text-sm text-carbon/50">
+        Registrados: <span class="font-semibold text-carbon">{{ store.total() }}</span>
+        · activos: <span class="font-semibold text-primario">{{ store.totalActivos() }}</span>
+      </p>
+    </div>
+
+    <div class="mt-8 grid gap-6 lg:grid-cols-[22rem_1fr]">
+
+      <!-- Formulario de registro -->
+      <section class="rounded-2xl border border-carbon/10 bg-white p-6 shadow-sm">
+
+        <header class="mb-6">
+          <span class="mb-4 block h-1 w-10 rounded-full bg-primario"></span>
+          <h2 class="text-base font-semibold tracking-tight text-carbon">Nuevo vehículo</h2>
+          <p class="mt-1 text-xs leading-relaxed text-carbon/55">
+            Los tres campos son obligatorios. El vehículo nace habilitado para circular.
+          </p>
+        </header>
+
+        <!-- Sin parqueaderos no hay a qué asignar el vehículo -->
+        @if (faltanParqueaderos()) {
+          <div
+            role="alert"
+            class="mb-6 rounded-lg border-l-4 border-amber-500 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+          >
+            <p class="font-medium">No hay parqueaderos registrados</p>
+            <p class="mt-1">Registre al menos uno antes de asignar vehículos.</p>
+            <button
+              type="button"
+              (click)="irAParqueaderos()"
+              class="mt-2 font-medium text-amber-900 underline hover:no-underline focus:outline-none"
+            >
+              Ir a parqueaderos
+            </button>
+          </div>
+        }
+
+        <form class="space-y-5" (ngSubmit)="onFormSubmit()" novalidate>
+
+          <div>
+            <label for="placa" class="mb-1.5 block text-sm font-medium text-carbon">Placa</label>
+            <input
+              id="placa"
+              name="placa"
+              type="text"
+              placeholder="ABC-1234"
+              [ngModel]="placa()"
+              (ngModelChange)="placa.set($event)"
+              class="w-full rounded-lg border border-carbon/15 bg-white px-4 py-2.5 uppercase text-carbon
+                     placeholder:normal-case placeholder:text-carbon/35 focus:border-primario
+                     focus:ring-2 focus:ring-primario/25 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label for="conductor" class="mb-1.5 block text-sm font-medium text-carbon">Conductor</label>
+            <input
+              id="conductor"
+              name="conductor"
+              type="text"
+              autocomplete="name"
+              placeholder="Juan Pérez"
+              [ngModel]="conductor()"
+              (ngModelChange)="conductor.set($event)"
+              class="w-full rounded-lg border border-carbon/15 bg-white px-4 py-2.5 text-carbon
+                     placeholder:text-carbon/35 focus:border-primario focus:ring-2
+                     focus:ring-primario/25 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label for="codParqueadero" class="mb-1.5 block text-sm font-medium text-carbon">
+              Parqueadero
+            </label>
+            <select
+              id="codParqueadero"
+              name="codParqueadero"
+              [ngModel]="codParqueadero()"
+              (ngModelChange)="codParqueadero.set($event)"
+              class="w-full rounded-lg border border-carbon/15 bg-white px-4 py-2.5 text-carbon
+                     focus:border-primario focus:ring-2 focus:ring-primario/25 focus:outline-none"
+            >
+              <option value="">Seleccione un parqueadero</option>
+              @for (parqueadero of parqueaderosStore.parqueaderos(); track parqueadero.codParqueadero) {
+                <option [value]="parqueadero.codParqueadero">
+                  {{ parqueadero.nombre }} — {{ parqueadero.direccion() }}
+                </option>
+              }
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            [disabled]="!formularioValido() || cargando()"
+            class="w-full rounded-lg bg-primario px-4 py-2.5 font-medium text-white
+                   transition-colors hover:bg-primario-oscuro focus:ring-2
+                   focus:ring-primario/40 focus:ring-offset-2 focus:outline-none
+                   disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {{ cargando() ? 'Registrando…' : 'Registrar vehículo' }}
+          </button>
+
+        </form>
+
+      </section>
+
+      <!-- Listado de vehículos -->
+      <section class="rounded-2xl border border-carbon/10 bg-white shadow-sm">
+
+        <header class="flex items-center justify-between gap-4 border-b border-carbon/10 px-6 py-4">
+          <div>
+            <h2 class="text-base font-semibold tracking-tight text-carbon">Vehículos registrados</h2>
+            <p class="mt-1 text-xs text-carbon/55">
+              Toque el código QR para ampliarlo o descargarlo.
+            </p>
+          </div>
+          <button
+            type="button"
+            (click)="cargarVehiculos()"
+            [disabled]="cargandoListado()"
+            class="rounded-lg border border-carbon/15 px-3 py-1.5 text-xs font-medium text-carbon/70
+                   transition-colors hover:border-primario hover:text-primario focus:outline-none
+                   disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {{ cargandoListado() ? 'Cargando…' : 'Recargar' }}
+          </button>
+        </header>
+
+        @if (store.vehiculos().length) {
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="text-xs uppercase tracking-wide text-carbon/45">
+                <tr class="border-b border-carbon/10">
+                  <th scope="col" class="px-6 py-3 font-medium">Placa</th>
+                  <th scope="col" class="px-6 py-3 font-medium">Conductor</th>
+                  <th scope="col" class="px-6 py-3 font-medium">Parqueadero</th>
+                  <th scope="col" class="px-6 py-3 font-medium">QR</th>
+                  <th scope="col" class="px-6 py-3 font-medium">Estado</th>
+                  <th scope="col" class="px-6 py-3 text-right font-medium">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (vehiculo of store.vehiculos(); track vehiculo.codVehiculo) {
+                  <tr class="border-b border-carbon/5 last:border-0">
+                    <td class="px-6 py-3.5 font-medium tracking-wide text-carbon">{{ vehiculo.placa }}</td>
+                    <td [ngClass]="'px-6 py-3.5 text-carbon/70'">{{ vehiculo.conductor }}</td>
+                    <td [ngClass]="'px-6 py-3.5 text-carbon/70'">{{ nombreParqueadero(vehiculo) }}</td>
+                    <td class="px-6 py-3.5">
+                      @if (vehiculo.tieneQr()) {
+                        <button
+                          type="button"
+                          (click)="alternarQr(vehiculo)"
+                          [attr.aria-expanded]="qrVisible(vehiculo)"
+                          class="rounded-lg border border-carbon/10 p-1 transition-colors
+                                 hover:border-primario focus:outline-none"
+                        >
+                          <img
+                            [src]="vehiculo.qrComoImagen()"
+                            [alt]="'Código QR del vehículo ' + vehiculo.placa"
+                            [ngClass]="qrVisible(vehiculo) ? 'h-32 w-32' : 'h-10 w-10'"
+                            class="block transition-all"
+                          />
+                        </button>
+                        @if (qrVisible(vehiculo)) {
+                          <a
+                            [href]="vehiculo.qrComoImagen()"
+                            [download]="nombreArchivoQr(vehiculo)"
+                            class="mt-2 block text-xs font-medium text-primario hover:underline"
+                          >
+                            Descargar
+                          </a>
+                        }
+                      } @else {
+                        <span [ngClass]="'text-xs text-carbon/45'">sin QR</span>
+                      }
+                    </td>
+                    <td class="px-6 py-3.5">
+                      <span
+                        [ngClass]="clasesEstado(vehiculo.estado)"
+                        class="rounded-full px-2.5 py-1 text-xs font-medium"
+                      >
+                        {{ vehiculo.estado }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-3.5">
+                      @if (filaEnEspera(vehiculo)) {
+                        <p [ngClass]="'text-right text-xs text-carbon/50'">Guardando…</p>
+                      } @else {
+                        <div class="flex justify-end gap-2">
+                          <button
+                            type="button"
+                            (click)="cambiarEstado(vehiculo, 'ACTIVO')"
+                            [disabled]="actualizando() !== null || vehiculo.estado === 'ACTIVO'"
+                            class="rounded-lg border border-carbon/15 px-3 py-1.5 text-xs font-medium
+                                   text-carbon/70 transition-colors hover:border-primario
+                                   hover:text-primario focus:outline-none
+                                   disabled:cursor-not-allowed disabled:opacity-40"
+                          >
+                            Activar
+                          </button>
+                          <button
+                            type="button"
+                            (click)="cambiarEstado(vehiculo, 'INACTIVO')"
+                            [disabled]="actualizando() !== null || vehiculo.estado === 'INACTIVO'"
+                            class="rounded-lg border border-carbon/15 px-3 py-1.5 text-xs font-medium
+                                   text-carbon/70 transition-colors hover:border-red-400
+                                   hover:text-red-600 focus:outline-none
+                                   disabled:cursor-not-allowed disabled:opacity-40"
+                          >
+                            Desactivar
+                          </button>
+                        </div>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <!-- Marcador de posición mientras no hay vehículos que mostrar -->
+          <div class="px-6 py-16 text-center">
+            <span class="mx-auto mb-4 block h-1 w-10 rounded-full bg-primario/40"></span>
+            <p class="text-sm font-medium text-carbon">
+              {{ cargandoListado() ? 'Cargando vehículos…' : 'Todavía no hay vehículos registrados' }}
+            </p>
+            <p class="mx-auto mt-2 max-w-md text-sm text-carbon/55">
+              Complete el formulario para registrar el primero.
+            </p>
+          </div>
+        }
+
+      </section>
+
+    </div>
+
+  </main>
+
+</div>

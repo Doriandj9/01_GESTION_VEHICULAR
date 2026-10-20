@@ -1,0 +1,5 @@
+/* El layout se resuelve con Tailwind; el host solo ocupa toda la altura. */
+:host {
+    display: block;
+    min-height: 100dvh;
+}

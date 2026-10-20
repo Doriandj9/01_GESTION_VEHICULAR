@@ -1,0 +1,256 @@
+<!-- Módulo de usuarios. Mantiene el mismo estilo del dashboard: barra negra y acentos verdes. -->
+<div class="min-h-dvh bg-neutral-50">
+
+  <!-- Barra superior -->
+  <header class="sticky top-0 z-10 bg-carbon">
+    <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4">
+
+      <div class="flex items-center gap-3">
+        <span class="h-7 w-1 rounded-full bg-primario"></span>
+        <div>
+          <p class="text-sm font-semibold text-white">Gestión Vehicular</p>
+          <p class="text-xs text-white/50">{{ entidad.alias }}</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="hidden text-right sm:block">
+          <p class="text-sm font-medium text-white">{{ sesion.usuario()?.nombres }}</p>
+          <p class="text-xs text-primario">{{ sesion.rol() }}</p>
+        </div>
+        <button
+          type="button"
+          (click)="cerrarSesion()"
+          class="rounded-lg border border-white/20 px-3 py-1.5 text-sm text-white/80
+                 transition-colors hover:border-white/40 hover:text-white focus:outline-none"
+        >
+          Salir
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Contenido -->
+  <main class="mx-auto max-w-6xl px-6 py-10">
+
+    <!-- Regreso al panel: acción visible y grande -->
+    <button
+      type="button"
+      (click)="irAlDashboard()"
+      class="mb-8 inline-flex items-center gap-3 rounded-xl border border-carbon/15 bg-white
+             px-5 py-3 text-base font-semibold text-carbon shadow-sm transition-colors
+             hover:border-primario hover:bg-primario hover:text-white focus:ring-2
+             focus:ring-primario/30 focus:ring-offset-2 focus:outline-none"
+    >
+      <svg
+        class="h-5 w-5 shrink-0"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M19 12H5" />
+        <path d="M12 19l-7-7 7-7" />
+      </svg>
+      Volver al panel de administración
+    </button>
+
+    <!-- Encabezado del módulo -->
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-semibold tracking-tight text-carbon">Usuarios</h1>
+        <p class="mt-1 text-sm text-carbon/60">
+          Registre los usuarios del sistema y asígneles su rol.
+        </p>
+      </div>
+      <p class="text-sm text-carbon/50">
+        Total registrados: <span class="font-semibold text-carbon">{{ store.total() }}</span>
+      </p>
+    </div>
+
+    <div class="mt-8 grid gap-6 lg:grid-cols-[22rem_1fr]">
+
+      <!-- Formulario de registro -->
+      <section class="rounded-2xl border border-carbon/10 bg-white p-6 shadow-sm">
+
+        <header class="mb-6">
+          <span class="mb-4 block h-1 w-10 rounded-full bg-primario"></span>
+          <h2 class="text-base font-semibold tracking-tight text-carbon">Nuevo usuario</h2>
+          <p class="mt-1 text-xs leading-relaxed text-carbon/55">
+            El sistema crea el usuario con una clave inicial que deberá cambiar al ingresar.
+          </p>
+        </header>
+
+        <form class="space-y-5" (ngSubmit)="onFormSubmit()" novalidate>
+
+          <div>
+            <label for="nombre" class="mb-1.5 block text-sm font-medium text-carbon">
+              Nombres completos
+            </label>
+            <input
+              id="nombre"
+              name="nombre"
+              type="text"
+              autocomplete="name"
+              placeholder="Juan Pérez"
+              [ngModel]="nombre()"
+              (ngModelChange)="nombre.set($event)"
+              class="w-full rounded-lg border border-carbon/15 bg-white px-4 py-2.5 text-carbon
+                     placeholder:text-carbon/35 focus:border-primario focus:ring-2
+                     focus:ring-primario/25 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label for="correo" class="mb-1.5 block text-sm font-medium text-carbon">
+              Correo electrónico
+            </label>
+            <input
+              id="correo"
+              name="correo"
+              type="email"
+              autocomplete="email"
+              placeholder="usuario@gadmjs.gob.ec"
+              [ngModel]="correo()"
+              (ngModelChange)="correo.set($event)"
+              class="w-full rounded-lg border border-carbon/15 bg-white px-4 py-2.5 text-carbon
+                     placeholder:text-carbon/35 focus:border-primario focus:ring-2
+                     focus:ring-primario/25 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label for="rol" class="mb-1.5 block text-sm font-medium text-carbon">Rol</label>
+            <select
+              id="rol"
+              name="rol"
+              [ngModel]="rol()"
+              (ngModelChange)="rol.set($event)"
+              class="w-full rounded-lg border border-carbon/15 bg-white px-4 py-2.5 text-carbon
+                     focus:border-primario focus:ring-2 focus:ring-primario/25 focus:outline-none"
+            >
+              @for (opcion of roles; track opcion) {
+                <option [value]="opcion">{{ opcion }}</option>
+              }
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            [disabled]="!formularioValido() || cargando()"
+            class="w-full rounded-lg bg-primario px-4 py-2.5 font-medium text-white
+                   transition-colors hover:bg-primario-oscuro focus:ring-2
+                   focus:ring-primario/40 focus:ring-offset-2 focus:outline-none
+                   disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {{ cargando() ? 'Registrando…' : 'Registrar usuario' }}
+          </button>
+
+        </form>
+
+      </section>
+
+      <!-- Listado de usuarios -->
+      <section class="rounded-2xl border border-carbon/10 bg-white shadow-sm">
+
+        <header class="flex items-center justify-between gap-4 border-b border-carbon/10 px-6 py-4">
+          <div>
+            <h2 class="text-base font-semibold tracking-tight text-carbon">Usuarios del sistema</h2>
+          </div>
+          <button
+            type="button"
+            (click)="cargarUsuarios()"
+            [disabled]="cargandoListado()"
+            class="rounded-lg border border-carbon/15 px-3 py-1.5 text-xs font-medium text-carbon/70
+                   transition-colors hover:border-primario hover:text-primario focus:outline-none
+                   disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {{ cargandoListado() ? 'Cargando…' : 'Recargar' }}
+          </button>
+        </header>
+
+        @if (store.usuarios().length) {
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="text-xs uppercase tracking-wide text-carbon/45">
+                <tr class="border-b border-carbon/10">
+                  <th scope="col" class="px-6 py-3 font-medium">Nombres</th>
+                  <th scope="col" class="px-6 py-3 font-medium">Correo</th>
+                  <th scope="col" class="px-6 py-3 font-medium">Rol</th>
+                  <th scope="col" class="px-6 py-3 font-medium">Estado</th>
+                  <th scope="col" class="px-6 py-3 text-right font-medium">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (usuario of store.usuarios(); track usuario.codUsuarios) {
+                  <tr class="border-b border-carbon/5 last:border-0">
+                    <td class="px-6 py-3.5 font-medium text-carbon">{{ usuario.nombres }}</td>
+                    <td [ngClass]="'px-6 py-3.5 text-carbon/70'">{{ usuario.correo }}</td>
+                    <td [ngClass]="'px-6 py-3.5 text-carbon/70'">{{ usuario.rol }}</td>
+                    <td class="px-6 py-3.5">
+                      <span
+                        [ngClass]="clasesEstado(usuario.estado)"
+                        class="rounded-full px-2.5 py-1 text-xs font-medium"
+                      >
+                        {{ textoEstado(usuario.estado) }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-3.5">
+                      @if (filaEnEspera(usuario)) {
+                        <p [ngClass]="'text-right text-xs text-carbon/50'">Guardando…</p>
+                      } @else {
+                        <div class="flex justify-end gap-2">
+                          <button
+                            type="button"
+                            (click)="cambiarEstado(usuario, 'ACTIVO')"
+                            [disabled]="actualizando() !== null || usuario.estado === 'ACTIVO'"
+                            class="rounded-lg border border-carbon/15 px-3 py-1.5 text-xs font-medium
+                                   text-carbon/70 transition-colors hover:border-primario
+                                   hover:text-primario focus:outline-none
+                                   disabled:cursor-not-allowed disabled:opacity-40"
+                          >
+                            Activar
+                          </button>
+                          <button
+                            type="button"
+                            (click)="cambiarEstado(usuario, 'INACTIVO')"
+                            [disabled]="actualizando() !== null || usuario.estado === 'INACTIVO'"
+                            class="rounded-lg border border-carbon/15 px-3 py-1.5 text-xs font-medium
+                                   text-carbon/70 transition-colors hover:border-red-400
+                                   hover:text-red-600 focus:outline-none
+                                   disabled:cursor-not-allowed disabled:opacity-40"
+                          >
+                            Desactivar
+                          </button>
+                        </div>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <!-- Marcador de posición mientras no hay usuarios que mostrar -->
+          <div class="px-6 py-16 text-center">
+            <span class="mx-auto mb-4 block h-1 w-10 rounded-full bg-primario/40"></span>
+            <p class="text-sm font-medium text-carbon">
+              {{ cargandoListado() ? 'Cargando usuarios…' : 'Todavía no hay usuarios registrados' }}
+            </p>
+            <p class="mx-auto mt-2 max-w-md text-sm text-carbon/55">
+              Complete el formulario para crear el primero.
+            </p>
+          </div>
+        }
+
+      </section>
+
+    </div>
+
+  </main>
+
+</div>

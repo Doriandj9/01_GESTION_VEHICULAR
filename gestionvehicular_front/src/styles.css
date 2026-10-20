@@ -1,0 +1,15 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import 'tailwindcss';
+
+/* Colores institucionales del GADMJS. Se usan mediante las utilidades de
+   Tailwind: bg-primario, text-primario, border-carbon, etc. */
+@theme {
+    --color-primario: #1a9a3e;
+    --color-primario-claro: #22b94c;
+    --color-primario-oscuro: #137a30;
+
+    --color-carbon: #2b2b2b;
+    --color-carbon-claro: #3d3d3d;
+    --color-carbon-oscuro: #1c1c1c;
+}

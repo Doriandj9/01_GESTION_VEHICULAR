@@ -1,0 +1,6 @@
+/* El layout se resuelve con Tailwind. Solo se ajusta el host para que el
+   panel quede centrado ocupando toda la altura disponible. */
+:host {
+    display: block;
+    min-height: 100dvh;
+}

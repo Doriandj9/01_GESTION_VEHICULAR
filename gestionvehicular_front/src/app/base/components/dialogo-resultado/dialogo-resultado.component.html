@@ -1,0 +1,64 @@
+<!-- Diálogo global de resultado: minimalista, con icono animado de visto o error -->
+@if (dialogo.resultado(); as resultado) {
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-carbon-oscuro/60 px-4 py-10
+           backdrop-blur-sm dialogo-fondo"
+    (click)="cerrar()"
+  >
+    <section
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="dialogo-titulo"
+      class="w-full max-w-sm rounded-2xl bg-white p-8 text-center shadow-2xl dialogo-panel"
+      (click)="$event.stopPropagation()"
+    >
+
+      <!-- Icono animado -->
+      @if (resultado.tipo === 'exito') {
+        <svg class="icono icono-exito" viewBox="0 0 52 52" aria-hidden="true">
+          <circle class="icono-borde" cx="26" cy="26" r="24" />
+          <path class="icono-trazo" d="M15 27.5 L22.5 35 L37 19" />
+        </svg>
+      } @else {
+        <svg class="icono icono-error" viewBox="0 0 52 52" aria-hidden="true">
+          <circle class="icono-borde" cx="26" cy="26" r="24" />
+          <path class="icono-trazo" d="M19 19 L33 33" />
+          <path class="icono-trazo icono-trazo-retrasado" d="M33 19 L19 33" />
+        </svg>
+      }
+
+      <!-- Título y mensaje principal (el mensaje siempre se muestra) -->
+      <h2
+        id="dialogo-titulo"
+        class="mt-6 text-lg font-semibold tracking-tight text-carbon"
+      >
+        {{ titulo }}
+      </h2>
+
+      <p [ngClass]="'mt-2 text-sm leading-relaxed text-carbon/65'">{{ resultado.mensaje }}</p>
+
+      <!-- Validaciones por campo devueltas por la api -->
+      @if (dialogo.validaciones().length) {
+        <ul class="mt-5 space-y-1.5 rounded-lg bg-red-50 px-4 py-3 text-left text-sm text-red-700">
+          @for (validacion of dialogo.validaciones(); track validacion[0]) {
+            <li class="flex gap-2">
+              <span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-red-500"></span>
+              <span><span class="font-medium">{{ validacion[0] }}:</span> {{ validacion[1] }}</span>
+            </li>
+          }
+        </ul>
+      }
+
+      <button
+        type="button"
+        (click)="cerrar()"
+        [ngClass]="resultado.tipo === 'exito'
+          ? 'mt-7 w-full rounded-lg bg-primario px-4 py-2.5 font-medium text-white transition-colors hover:bg-primario-oscuro focus:ring-2 focus:ring-primario/40 focus:ring-offset-2 focus:outline-none'
+          : 'mt-7 w-full rounded-lg bg-carbon px-4 py-2.5 font-medium text-white transition-colors hover:bg-carbon-claro focus:ring-2 focus:ring-carbon/30 focus:ring-offset-2 focus:outline-none'"
+      >
+        Entendido
+      </button>
+
+    </section>
+  </div>
+}
